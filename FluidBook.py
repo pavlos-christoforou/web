@@ -1,0 +1,479 @@
+""" FluidBook generator.
+
+    Takes a FluidBook text file and generates a Boostrap.js based lifebook site.
+
+"""
+
+
+from T import T
+from Settings import Settings
+import re
+import argparse
+import datetime
+
+try:
+    from markdown import markdown
+except ImportError:
+    def markdown(txt):
+        out = '<p>%s</p>' % txt
+        return out
+    
+
+### Globals
+
+SUMMARY_LEN = 10000
+
+### helpers
+
+def format_date(date):
+
+    return date.strftime("%Y-%m-%d %H:%M:%S")
+
+
+def parse_date(iso_string):
+    """ parse iso formatted date string.
+
+    """
+    d = datetime.datetime(* tuple([int(i) for i in iso_string.strip().split('-')]))
+    return d
+
+
+MAKE_REF_RE = re.compile('[^a-z0-9]+', re.IGNORECASE)
+
+def make_ref(txt):
+    """ create a file name valid ref from an arbitrary name.
+
+    """
+
+    ref = MAKE_REF_RE.sub('_', txt).lower()
+    return ref
+    
+
+
+## templates
+
+
+###
+
+
+
+class FluidBook(object):
+
+    """ object representing a lifebook.
+
+    """
+
+    def __init__(self,
+                 title = None,
+                 author = None,
+                 date = None,
+                 summary = None,
+                 ):
+        self.title = title
+        self.author = author
+        self.date = date
+        self.summary = summary
+        self.summary_html = None
+        
+        self.articles = []
+
+        self.settings = Settings()
+        
+
+    def add(self, article):
+
+        if article.author is None:
+            article.author = self.author
+
+        self.articles.append(article)
+        
+
+    def sort(self):
+
+        """ sort on article date, newer first.
+
+        """
+
+        self.articles.sort(lambda a,b: cmp(a.date, b.date))
+        self.articles.reverse()
+
+        
+
+    def convert_markdown(self):
+        if self.summary:
+            self.summary_html = markdown(self.summary)
+
+        for article in self.articles:
+            if article.content:
+                article.content_html = markdown(article.content)
+    
+
+    def get_topics_set(self):
+
+        out = []
+
+        d = {}
+        for article in self.articles:
+            l = d.setdefault(article.topic, [])
+            l.append(article)
+
+        for _tuple in sorted(d.items()):
+            out.append(_tuple)
+
+        return out
+
+
+    def get_archives_set(self):
+
+        out = []
+
+        d = {}
+        for article in self.articles:
+            l = d.setdefault(article.date.strftime("%B %Y"), [])
+            l.append(article)
+
+        for _tuple in sorted(d.items()):
+            out.append(_tuple)
+
+        return out
+
+
+    def get_chapters_set(self):
+
+        out = []
+
+        d = {}
+        for article in self.articles:
+            l = d.setdefault((article.chapter_i, article.chapter), [])
+            l.append(article)
+
+        for ((chapter_1, chapter), articles) in sorted(d.items()):
+            out.append((chapter, articles))
+
+        return out
+
+
+    def create_nav(self):
+        """ create chapter and topic links.
+
+        """
+
+        section = T()
+              
+        with section.ul("nav nav-pills") as ul:
+            with ul.li("active").a as a:
+                a.href = "./latest.html"
+                a < "Latest"
+
+            # do chapters
+            with ul.li("dropdown clearfix") as li:
+                with li.a("dropdown-toggle", "drop1") as a:
+                    a.role = "button"
+                    a._set("data-toggle", "dropdown")
+                    a.href = "#"
+                    a < "Chapters"
+                    a.b("caret")
+
+                with li.ul("dropdown-menu", "menu1") as inner_ul:
+                    inner_ul.role = "menu"
+                    inner_ul._set("aria-labelledby", "drop1")
+                    chapters = self.get_chapters_set()
+                    for (title, articles) in chapters:
+                        if articles:
+                            with inner_ul.li.a as a:
+                                a.href = "./%s.html" % articles[0].chapter_ref
+                                a.tabindex = "-1"
+                                a < articles[0].chapter
+            # do topics
+            with ul.li("dropdown") as li:
+                with li.a("dropdown-toggle", "drop2") as a:
+                    a.role = "button"
+                    a._set("data-toggle", "dropdown")
+                    a.href = "#"
+                    a < "Topics"
+                    a.b("caret")
+
+                with li.ul("dropdown-menu", "menu1") as inner_ul:
+                    inner_ul.role = "menu"
+                    inner_ul._set("aria-labelledby", "drop2")
+                    topics = self.get_topics_set()
+                    for (title, articles) in topics:
+                        if articles:
+                            with inner_ul.li("active").a as a:
+                                a.href = "./%s.html" % articles[0].topic_ref
+                                a.tabindex = "-1"
+                                a < articles[0].topic
+
+
+            # do archives
+            with ul.li("dropdown") as li:
+                with li.a("dropdown-toggle", "drop3") as a:
+                    a.role = "button"
+                    a._set("data-toggle", "dropdown")
+                    a.href = "#"
+                    a < "Archives"
+                    a.b("caret")
+
+                with li.ul("dropdown-menu", "menu1") as inner_ul:
+                    inner_ul.role = "menu"
+                    inner_ul._set("aria-labelledby", "drop3")
+                    archives = self.get_archives_set()
+                    for (date, articles) in archives:
+                        if articles:
+                            file_date = articles[0].date.strftime("%Y%m")
+                            with inner_ul.li.a as date_a:
+                                date_a.href = "./%s.html" % file_date
+                                date_a.strong < date
+
+                            for article in articles:
+                                with inner_ul.li.a as article_a:
+                                    article_a.href = "./%s.html#%s" % (file_date, article.ref)
+                                    article_a.small < '&nbsp;' + article.title
+
+                            inner_ul.li("divider")
+                            
+        return section
+
+
+    
+
+    def create_main(self):
+
+        doc = T()
+        doc < self.settings.HEADER
+
+        if self.summary_html:
+            doc.div('hero-unit').p < self.summary_html
+
+        doc.div("row").div("span12") < self.create_nav()
+
+        with doc.div("row") as main:
+            for article in self.articles[:3]:
+                main.div("span4") < article.create_summary()
+            main.hr
+
+        doc < self.settings.FOOTER
+
+        return doc
+
+
+    def get_namespace(self):
+        """ create a namespace for the _render method of the final
+            document. Any python string.Template substitutions will be
+            looked up in this namespace.
+
+        """
+
+        nmsp = self.settings.__dict__.copy()
+        nmsp.update(self.__dict__.copy())
+
+        return nmsp
+
+        
+
+    def create_site(self, target_dir):
+
+        self.sort()
+        self.convert_markdown()
+        nmsp = self.get_namespace()
+        
+        index = self.create_main()._render(** nmsp)
+        open(os.path.join(target_dir, 'index.html'), 'w').write(index)
+
+
+
+
+class Article(object):
+
+    """ object representing a lifebook article.
+
+    """
+
+
+    def __init__(self,
+                 title = None,
+                 author = None,
+                 date = None,
+                 topic = None,
+                 chapter = None,
+                 chapter_i = None,
+                 ref = None,
+                 content = None,
+                 ):
+        
+        self.title = title
+        self.author = author
+        self.date = date
+        self.topic= topic
+        self.chapter = chapter
+        self.chapter_i = chapter_i
+        self.content = content
+        self.content_html = None
+        
+
+        self.chapter_ref = make_ref(chapter)
+        self.topic_ref = make_ref(topic)
+        self.ref = make_ref(title)
+
+
+
+    def cut_summary(self):
+        """ cut some initial part of a text block and return it as
+            summary.
+
+            XXX a cleverer approach is needed.
+
+        """
+
+        return self.content[:SUMMARY_LEN]
+
+        
+    def create_summary(self):
+
+        """ create a summary for article.
+
+        """
+
+        doc = T()
+
+        doc.h3 < self.title
+        doc.strong < self.date
+        doc < ' / '
+        doc.strong < self.chapter
+
+        if self.topic:
+            doc < ' / '
+            doc.strong < self.topic
+
+        txt = self.content_html
+        if len(txt) <= SUMMARY_LEN:
+            doc < txt
+
+        else:
+            partial_txt = markdown(self.cut_summary() + ' ')
+            doc < partial_txt
+            with doc.a("btn") as a:
+                a.href = "./%s.html#%s" % (self.chapter_ref, self.ref)
+                a < "Read more &raquo;"
+
+        ## I like this T template more and more ...!
+
+        return doc
+
+
+
+
+
+
+def parse_source(txt):
+
+    """ parse FluidBook contents and return a FluidBook object.
+
+    """
+
+    CHAPTER_RE = re.compile('\s*chapter:\s*(.*)\s*', re.IGNORECASE)
+    ARTICLE_RE = re.compile('\s*article:\s*(.*)\s*', re.IGNORECASE)
+    SETTING_RE = re.compile('\s*(book|date|author|chapter|article|topic):\s*(.*)\s*', re.IGNORECASE)
+
+    def process_block(txt):
+
+        """ process block of text, extracting any initial setting
+            fields followed by any remaining text block.
+
+        """
+
+        settings = {}
+        text = ''
+        end_pos = 0
+        
+        while 1:
+            match = SETTING_RE.match(txt, end_pos)
+            if match:
+                (key, value) = match.groups()
+                settings[key.lower()] = value
+                end_pos = match.end()
+            else:
+                text = txt[end_pos:]
+                break
+
+        return (settings, text)
+
+    ## split txt into chapters
+    parts = CHAPTER_RE.split(txt)
+    book_header = parts[0]
+
+    ## process book header
+    (book_settings, summary) = process_block(book_header)
+
+    life_book = FluidBook(
+        title = book_settings.get('book'),
+        date = parse_date(book_settings.get('date')),
+        author = book_settings.get('author'),
+        summary = summary.strip()
+        )
+
+    print 'Processing FluidBook: %s' % life_book.title
+    print
+    chapter_blocks = parts[1:]
+    chapter_i = 0
+    for (chapter_title, chapter_block) in zip(chapter_blocks[::2], chapter_blocks[1::2]):
+        print '  Processing Chapter: %s' % chapter_title
+        print 
+        ## split chapter blocks into consituent articles
+        parts = ARTICLE_RE.split(chapter_block)
+        chapter_header = parts[0]
+        ## we have no futrther chapter settings or summary so we can stop here.
+        article_blocks = parts[1:]
+        chapter_i += 1
+        for (article_title, article_block) in zip(article_blocks[::2], article_blocks[1::2]):
+            print '    Processing Article: %s' % article_title
+            print
+            (article_settings, content) = process_block(article_block)
+
+            article = Article(
+                title = article_title,
+                author = article_settings.get('author'),
+                date = parse_date(article_settings.get('date')),
+                topic = article_settings.get('topic'),
+                chapter = chapter_title,
+                chapter_i = chapter_i,
+                content = content.strip()
+                )
+
+            life_book.add(article)
+
+    life_book.convert_markdown()
+
+    return life_book
+
+
+
+def cli():
+
+    """ command line interface.
+
+    """
+
+    parser = argparse.ArgumentParser(
+        description = 'FluidBook CLI',
+        )
+    
+    parser.add_argument('source_file', help = "FluidBook source file")
+    parser.add_argument('target_dir', help = "Target dir for generated html.")
+    args = parser.parse_args()
+
+    txt = open(args.source_file, 'r').read()
+    lfbk = parse_source(txt)
+    lfbk.create_site(args.target_dir)
+
+
+
+
+
+
+
+
+
+
+if __name__ == '__main__':
+    cli()

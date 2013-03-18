@@ -1,0 +1,179 @@
+Book: Pavlos's FluidBook
+Author: Pavlos Christoforou
+Date: 2013-01-20
+
+A FluidBook about raising 3 kids, programming and technology.
+
+
+Chapter: Programming
+
+Article: Introducing FluidBook
+Date: 2013-01-20
+Topic: Publishing
+
+
+I have been following a number of technology focused blogs and it
+appears to me that for a large class of such blogs the standard blog
+model with its time line format is not appropriate. Other than helping
+a frequent reader quickly locate an author's latest postings, the
+creation time of each posting is largely irrelevant. What is relevant
+is the topic or collection of topics to which each posting belongs to
+and the blogs with the best user interface adhere to a well defined
+and displined tagging strategy.
+
+It would appear that the book format with its ordered collection of
+chapters and sections is a much better way to organize such valuable
+content, providing a better user interface and content guidance
+to both casual and frequent readers.
+
+These observations along with the complexity of many blogging systems
+have motivated me to introduce a new format for such type of writting
+which is closer to the format of a regular book. I call it
+*FluidBook*. 
+
+A FluidBook is composed of a number of chapters and each chapter is
+composed of a number of articles. Each article's set of attributes is
+limited to a title, a date, an author and a topic. I wish, initially
+at least, to keep the model very strict and limited and mostly
+applicable to my particular requirements. Such a limited model
+faciliates easy organizational decisions and yields a simple library
+implementation. Too many libraries and systems/frameworks in the
+python world tend to be overengineered, making them unncessary complex
+to use and very hard to modify.
+
+### Implementation
+
+1. The contents of a book (or even multiple books) are organized in a
+single large text file. Good editors (Emacs/VIM/Sublime Text) are
+extremely powerfull applications offering incredible
+editing/navigation/search/replace facilities withing a single buffer
+or file. They are not as effective when working across a large
+collection of files especially if those files are organized in a
+hierarchical directory structure.
+
+2. Books, chapters and articles will be defined in terms of simple
+double colon field definitions and the actual content of each article
+will be written in markdown.
+
+3. The publishing system will be a single python file with a good
+command line interface.
+
+4. The output generated will be static html with some client site
+JavaScript initially targeting bootstrap.js.
+
+
+
+Article: Introducing FluidBook
+Date: 2013-01-20
+Topic: Publishing
+
+I have been following a number of technology focused blogs and it
+appears to me that for a large class of such blogs the standard blog
+model with its time line format is not appropriate. Other than helping
+a frequent reader quickly locate an author's latest postings, the
+creation time of each posting is largely irrelevant. What is relevant
+is the topic or collection of topics to which each posting belongs to
+and the blogs with the best user interface adhere to a well defined
+and displined tagging strategy.
+
+It would appear that the book format with its ordered collection of
+chapters and sections is a much better way to organize such valuable
+content, providing a better user interface and content guidance
+to both casual and frequent readers.
+
+These observations along with the complexity of many blogging systems
+have motivated me to introduce a new format for such type of writting
+which is closer to the format of a regular book. I call it
+*FluidBook*. 
+
+A FluidBook is composed of a number of chapters and each chapter is
+composed of a number of articles. Each article's set of attributes is
+limited to a title, a date, an author and a topic. I wish, initially
+at least, to keep the model very strict and limited and mostly
+applicable to my particular requirements. Such a limited model
+faciliates easy organizational decisions and yields a simple library
+implementation. Too many libraries and systems/frameworks in the
+python world tend to be overengineered, making them unncessary complex
+to use and very hard to modify.
+
+### Implementation
+
+1. The contents of a book (or even multiple books) are organized in a
+single large text file. Good editors (Emacs/VIM/Sublime Text) are
+extremely powerfull applications offering incredible
+editing/navigation/search/replace facilities withing a single buffer
+or file. They are not as effective when working across a large
+collection of files especially if those files are organized in a
+hierarchical directory structure.
+
+2. Books, chapters and articles will be defined in terms of simple
+double colon field definitions and the actual content of each article
+will be written in markdown.
+
+3. The publishing system will be a single python file with a good
+command line interface.
+
+4. The output generated will be static html with some client site
+JavaScript initially targeting bootstrap.js.
+
+
+
+
+
+Chapter: Python programming
+
+Article: Introducing FluidBook
+Date: 2013-01-20
+Topic: Publishing
+
+I have been following a number of technology focused blogs and it
+appears to me that for a large class of such blogs the standard blog
+model with its time line format is not appropriate. Other than helping
+a frequent reader quickly locate an author's latest postings, the
+creation time of each posting is largely irrelevant. What is relevant
+is the topic or collection of topics to which each posting belongs to
+and the blogs with the best user interface adhere to a well defined
+and displined tagging strategy.
+
+It would appear that the book format with its ordered collection of
+chapters and sections is a much better way to organize such valuable
+content, providing a better user interface and content guidance
+to both casual and frequent readers.
+
+These observations along with the complexity of many blogging systems
+have motivated me to introduce a new format for such type of writting
+which is closer to the format of a regular book. I call it
+*FluidBook*. 
+
+A FluidBook is composed of a number of chapters and each chapter is
+composed of a number of articles. Each article's set of attributes is
+limited to a title, a date, an author and a topic. I wish, initially
+at least, to keep the model very strict and limited and mostly
+applicable to my particular requirements. Such a limited model
+faciliates easy organizational decisions and yields a simple library
+implementation. Too many libraries and systems/frameworks in the
+python world tend to be overengineered, making them unncessary complex
+to use and very hard to modify.
+
+### Implementation
+
+1. The contents of a book (or even multiple books) are organized in a
+single large text file. Good editors (Emacs/VIM/Sublime Text) are
+extremely powerfull applications offering incredible
+editing/navigation/search/replace facilities withing a single buffer
+or file. They are not as effective when working across a large
+collection of files especially if those files are organized in a
+hierarchical directory structure.
+
+2. Books, chapters and articles will be defined in terms of simple
+double colon field definitions and the actual content of each article
+will be written in markdown.
+
+3. The publishing system will be a single python file with a good
+command line interface.
+
+4. The output generated will be static html with some client site
+JavaScript initially targeting bootstrap.js.
+
+
+
