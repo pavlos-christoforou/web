@@ -34,11 +34,23 @@ class T(object):
           
     """
 
-    def __init__(self, name = None):
+    def __init__(self, name = None, enable_interpolation = False):
+
+        """ 'name' of element. Root object will usually have an emoty name.
+
+             'enable_interpolation' enables string substitution to the
+             final document using the rules of the standard python
+             library string.Template. If enabled the ._render() method
+             applies any parameters passed to the string.Template
+             object.
+
+        """
+        
         self.__name = name
         self.__multi_line = False
         self.__contents = []
         self.__attributes = []
+        self.__enable_interpolation = enable_interpolation
 
 
     def __open(self, level = -1, **namespace):
@@ -52,8 +64,11 @@ class T(object):
 
         templ = ''.join(out)
 
-        txt = Template(templ).substitute(** namespace)
-
+        if self.__enable_interpolation:
+            txt = Template(templ).substitute(** namespace)
+        else:
+            txt = templ
+            
         return txt
 
 
@@ -93,14 +108,16 @@ class T(object):
 
             ## assume string or string.Template
             else:
+                if self.__enable_interpolation:
+                    txt = Template(item).substitute(**namespace)
+                else:
+                    txt = item
                 out_contents.append(
                     "{0}{1}".format(
                         TAB * level,
-                        Template(item).substitute(**namespace),
+                        txt,
                         )
                     )
-
-                #out_contents.append("{0}".format(Template(item).substitute(**namespace)))
 
         txt_contents = ''.join(out_contents)
 
@@ -120,7 +137,10 @@ class T(object):
 
 
     def __getattr__(self, name):
-        t = self.__class__(name)
+        t = self.__class__(
+            name,
+            enable_interpolation = self.__enable_interpolation,
+            )
         self < t
         return t
 
@@ -174,7 +194,7 @@ class T(object):
 
 def example():
 
-    doc = T()
+    doc = T(enable_interpolation = True)
     doc < """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
 \n"""
 
