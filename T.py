@@ -101,7 +101,7 @@ class T(object):
                 continue
 
             ## do some default type conversions here
-            if type(item) is T:
+            if isinstance(item, T):
                 self.__multi_line = True
                 out_contents.append(item._render(level = level + 1, **namespace))
 
