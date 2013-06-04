@@ -19,24 +19,34 @@ TAB = "  "
 
 class T(object):
 
-    """ A template object has a name, attributes and content.
+    """ A template object has a name, attributes and contents.
 
         The contents may contain sub template objects.
 
         Attributes are kept in order.
 
-        The only rules one has to remember:
+        1. use the '<' operator to add content to a template object.
 
-          * use the '<' operator to add content to a template object.
+        2. element attributes can be set in the following ways:
 
-          * elements can receive attributes in the constructor. The 2
-            most common attributes, 'class' and 'id' may be passed as
-            the first and second positional arguments
-            respectively. Further attributes may be provided as
-            key=value arguments to the constructor. Attributes that
-            are not valid python identifiers may be set using the
-            element method .set() or provided in the constructor as a
-            dict using the argument 'attr'.
+          body.style = "some style"; where body is an element object
+          
+          body.h1(style = "style for h1 element"); where body is an element type.
+
+          'class' and 'id' are 2 attributes in very common use
+          and can be passed as positional arguments to the element
+          constructor:
+
+          body.h1("someclass", "someid");  where body is an element object.
+
+          Unfortunately element attributes could occasionally have a
+          form which is not a valid python identifier. Such attributes
+          may be set using the element method .set() or provided in a
+          dict 'attr' in the element constructor:
+
+          body._set('non-valid-name', 'attribute_value') or
+          body.h1(attr = {'non-valid-name': 'attribute_value'})
+
     """
 
     def __init__(self, name = None, enable_interpolation = False):
