@@ -25,13 +25,18 @@ class T(object):
 
         Attributes are kept in order.
 
-        The only things one has to remember:
+        The only rules one has to remember:
 
           * use the '<' operator to add content to a template object.
 
-          * pass element attributes that are not valid python names in
-            the constructor of an element or use the ._set() method.
-          
+          * elements can receive attributes in the constructor. The 2
+            most common attributes, 'class' and 'id' may be passed as
+            the first and second positional arguments
+            respectively. Further attributes may be provided as
+            key=value arguments to the constructor. Attributes that
+            are not valid python identifiers may be set using the
+            element method .set() or provided in the constructor as a
+            dict using the argument 'attr'.
     """
 
     def __init__(self, name = None, enable_interpolation = False):
@@ -40,9 +45,9 @@ class T(object):
 
              'enable_interpolation' enables string substitution to the
              final document using the rules of the standard python
-             library string.Template. If enabled the ._render() method
-             applies any parameters passed to the string.Template
-             object.
+             library string.Template. If enabled the ._render(**
+             parameters) method applies the '** parameters' received
+             to the string.Template object.
 
         """
         
@@ -169,14 +174,28 @@ class T(object):
         return self
 
 
-    def __call__(self, _class = None, _id = None, **kws):
+    def __call__(self, _class = None, _id = None, attr = None, **kws):
+
+        other = {}    
+        if attr:
+            other.update(attr)
+        if kws:
+            other.update(kws)
+
+        # explcitly providing the class and id attributes has priority
+        # over dict provided info.
         if _class:
+            other.pop('class', None)
             self._set('class', _class)
         if _id:
-            self.id = _id
+            other.pop('id', None)
+            self._set('id', _id)
 
-        for (key, value) in kws.items():
-            self._set(key, value)
+        if other:
+            keys = other.keys()
+            keys.sort()
+            for key in keys:
+                self._set(key, attr[key])
 
         return self
     
@@ -218,7 +237,7 @@ def example():
             ## there is no need to use the with statement. It is useful for
             ## provide=ing structure and clarity to the code.
 
-            body.h3('main') < "Header 3"
+            body.h3('main', attr = {'non-valid-python-attribute-name': 'warning'}) < "Header 3"
 
             ## with statement
             with body.p as p:
