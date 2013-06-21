@@ -205,7 +205,7 @@ class T(object):
             keys = other.keys()
             keys.sort()
             for key in keys:
-                self._set(key, attr[key])
+                self._set(key, other[key])
 
         return self
     
@@ -248,6 +248,10 @@ def example():
             ## provide=ing structure and clarity to the code.
 
             body.h3('main', attr = {'non-valid-python-attribute-name': 'warning'}) < "Header 3"
+
+            body.h4('main', valid_python_name = "ok") < "Header 4"
+
+            body.h5('main', valid_python_name = "ok", attr = {'non-valid-python-attribute-name': 'warning'}) < "Header 5"
 
             ## with statement
             with body.p as p:
