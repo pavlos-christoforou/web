@@ -19,26 +19,53 @@ TAB = "  "
 
 class T(object):
 
-    """ A template object has a name, attributes and content.
+    """ A template object has a name, attributes and contents.
 
         The contents may contain sub template objects.
 
         Attributes are kept in order.
 
-        The only things one has to remember:
+        1. use the '<' operator to add content to a template object.
 
-          * use the '<' operator to add content to a template object.
+        2. element attributes can be set in the following ways:
 
-          * pass element attributes that are not valid python names in
-            the constructor of an element or use the ._set() method.
+          body.style = "some style"; where body is an element object
           
+          body.h1(style = "style for h1 element"); where body is an element type.
+
+          'class' and 'id' are 2 attributes in very common use
+          and can be passed as positional arguments to the element
+          constructor:
+
+          body.h1("someclass", "someid");  where body is an element object.
+
+          Unfortunately element attributes could occasionally have a
+          form which is not a valid python identifier. Such attributes
+          may be set using the element method .set() or provided in a
+          dict 'attr' in the element constructor:
+
+          body._set('non-valid-name', 'attribute_value') or
+          body.h1(attr = {'non-valid-name': 'attribute_value'})
+
     """
 
-    def __init__(self, name = None):
+    def __init__(self, name = None, enable_interpolation = False):
+
+        """ 'name' of element. Root object will usually have an emoty name.
+
+             'enable_interpolation' enables string substitution to the
+             final document using the rules of the standard python
+             library string.Template. If enabled the ._render(**
+             parameters) method applies the '** parameters' received
+             to the string.Template object.
+
+        """
+        
         self.__name = name
         self.__multi_line = False
         self.__contents = []
         self.__attributes = []
+        self.__enable_interpolation = enable_interpolation
 
 
     def __open(self, level = -1, **namespace):
@@ -52,8 +79,11 @@ class T(object):
 
         templ = ''.join(out)
 
-        txt = Template(templ).substitute(** namespace)
-
+        if self.__enable_interpolation:
+            txt = Template(templ).substitute(** namespace)
+        else:
+            txt = templ
+            
         return txt
 
 
@@ -81,7 +111,7 @@ class T(object):
                 continue
 
             ## do some default type conversions here
-            if type(item) is T:
+            if isinstance(item, T):
                 self.__multi_line = True
                 out_contents.append(item._render(level = level + 1, **namespace))
 
@@ -93,14 +123,16 @@ class T(object):
 
             ## assume string or string.Template
             else:
+                if self.__enable_interpolation:
+                    txt = Template(item).substitute(**namespace)
+                else:
+                    txt = item
                 out_contents.append(
                     "{0}{1}".format(
                         TAB * level,
-                        Template(item).substitute(**namespace),
+                        txt,
                         )
                     )
-
-                #out_contents.append("{0}".format(Template(item).substitute(**namespace)))
 
         txt_contents = ''.join(out_contents)
 
@@ -120,7 +152,10 @@ class T(object):
 
 
     def __getattr__(self, name):
-        t = self.__class__(name)
+        t = self.__class__(
+            name,
+            enable_interpolation = self.__enable_interpolation,
+            )
         self < t
         return t
 
@@ -149,14 +184,28 @@ class T(object):
         return self
 
 
-    def __call__(self, _class = None, _id = None, **kws):
+    def __call__(self, _class = None, _id = None, attr = None, **kws):
+
+        other = {}    
+        if attr:
+            other.update(attr)
+        if kws:
+            other.update(kws)
+
+        # explcitly providing the class and id attributes has priority
+        # over dict provided info.
         if _class:
+            other.pop('class', None)
             self._set('class', _class)
         if _id:
-            self.id = _id
+            other.pop('id', None)
+            self._set('id', _id)
 
-        for (key, value) in kws.items():
-            self._set(key, value)
+        if other:
+            keys = other.keys()
+            keys.sort()
+            for key in keys:
+                self._set(key, other[key])
 
         return self
     
@@ -174,7 +223,7 @@ class T(object):
 
 def example():
 
-    doc = T()
+    doc = T(enable_interpolation = True)
     doc < """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
 \n"""
 
@@ -198,7 +247,11 @@ def example():
             ## there is no need to use the with statement. It is useful for
             ## provide=ing structure and clarity to the code.
 
-            body.h3('main') < "Header 3"
+            body.h3('main', attr = {'non-valid-python-attribute-name': 'warning'}) < "Header 3"
+
+            body.h4('main', valid_python_name = "ok") < "Header 4"
+
+            body.h5('main', valid_python_name = "ok", attr = {'non-valid-python-attribute-name': 'warning'}) < "Header 5"
 
             ## with statement
             with body.p as p:
