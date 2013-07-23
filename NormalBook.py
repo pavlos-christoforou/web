@@ -1,6 +1,6 @@
 """ FluidBook generator.
 
-    Takes a FluidBook text file and generates a Boostrap.js based lifebook site.
+    Takes a NormalBook text file and generates a Boostrap.js based normalbook site.
 
 """
 
@@ -14,6 +14,7 @@ import datetime
 try:
     from markdown import markdown
 except ImportError:
+    print 'WARNING: Markdown not available.'
     def markdown(txt):
         out = '<p>%s</p>' % txt
         return out
@@ -49,17 +50,13 @@ def make_ref(txt):
     return ref
     
 
-
-## templates
-
-
 ###
 
 
 
-class FluidBook(object):
+class NormalBook(object):
 
-    """ object representing a lifebook.
+    """ object representing a normal book.
 
     """
 
@@ -285,7 +282,7 @@ class FluidBook(object):
 
 class Article(object):
 
-    """ object representing a lifebook article.
+    """ object representing a normalbook article.
 
     """
 
@@ -367,7 +364,7 @@ class Article(object):
 
 def parse_source(txt):
 
-    """ parse FluidBook contents and return a FluidBook object.
+    """ parse NormalBook contents and return a NormalBook object.
 
     """
 
@@ -405,14 +402,14 @@ def parse_source(txt):
     ## process book header
     (book_settings, summary) = process_block(book_header)
 
-    life_book = FluidBook(
+    normal_book = NormalBook(
         title = book_settings.get('book'),
         date = parse_date(book_settings.get('date')),
         author = book_settings.get('author'),
         summary = summary.strip()
         )
 
-    print 'Processing FluidBook: %s' % life_book.title
+    print 'Processing NormalBook: %s' % normal_book.title
     print
     chapter_blocks = parts[1:]
     chapter_i = 0
@@ -440,11 +437,11 @@ def parse_source(txt):
                 content = content.strip()
                 )
 
-            life_book.add(article)
+            normal_book.add(article)
 
-    life_book.convert_markdown()
+    normal_book.convert_markdown()
 
-    return life_book
+    return normal_book
 
 
 
@@ -455,16 +452,16 @@ def cli():
     """
 
     parser = argparse.ArgumentParser(
-        description = 'FluidBook CLI',
+        description = 'NormalBook CLI',
         )
     
-    parser.add_argument('source_file', help = "FluidBook source file")
+    parser.add_argument('source_file', help = "NormalBook source file")
     parser.add_argument('target_dir', help = "Target dir for generated html.")
     args = parser.parse_args()
 
     txt = open(args.source_file, 'r').read()
-    lfbk = parse_source(txt)
-    lfbk.create_site(args.target_dir)
+    bk = parse_source(txt)
+    bk.create_site(args.target_dir)
 
 
 
