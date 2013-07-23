@@ -10,6 +10,7 @@ from Settings import Settings
 import re
 import argparse
 import datetime
+import os
 
 try:
     from markdown import markdown
@@ -155,80 +156,90 @@ class NormalBook(object):
 
         """
 
-        section = T()
-              
-        with section.ul("nav nav-pills") as ul:
-            with ul.li("active").a as a:
-                a.href = "./latest.html"
-                a < "Latest"
+        section = T(enable_interpolation = True)
 
-            # do chapters
-            with ul.li("dropdown clearfix") as li:
-                with li.a("dropdown-toggle", "drop1") as a:
-                    a.role = "button"
-                    a._set("data-toggle", "dropdown")
-                    a.href = "#"
-                    a < "Chapters"
-                    a.b("caret")
+        with section.div("masthead") as div:
+        
+            with div.ul("nav nav-pills pull-right") as ul:
+                with ul.li("active").a as a:
+                    a.href = "./latest.html"
+                    a < "Latest"
 
-                with li.ul("dropdown-menu", "menu1") as inner_ul:
-                    inner_ul.role = "menu"
-                    inner_ul._set("aria-labelledby", "drop1")
-                    chapters = self.get_chapters_set()
-                    for (title, articles) in chapters:
-                        if articles:
-                            with inner_ul.li.a as a:
-                                a.href = "./%s.html" % articles[0].chapter_ref
-                                a.tabindex = "-1"
-                                a < articles[0].chapter
-            # do topics
-            with ul.li("dropdown") as li:
-                with li.a("dropdown-toggle", "drop2") as a:
-                    a.role = "button"
-                    a._set("data-toggle", "dropdown")
-                    a.href = "#"
-                    a < "Topics"
-                    a.b("caret")
+                # do chapters
+                with ul.li("dropdown") as li:
+                    with li.a("dropdown-toggle", "drop1") as a:
+                        a.role = "button"
+                        a._set("data-toggle", "dropdown")
+                        a.href = "#"
+                        a < "Chapters"
+                        a.b("caret")
 
-                with li.ul("dropdown-menu", "menu1") as inner_ul:
-                    inner_ul.role = "menu"
-                    inner_ul._set("aria-labelledby", "drop2")
-                    topics = self.get_topics_set()
-                    for (title, articles) in topics:
-                        if articles:
-                            with inner_ul.li("active").a as a:
-                                a.href = "./%s.html" % articles[0].topic_ref
-                                a.tabindex = "-1"
-                                a < articles[0].topic
+                    with li.ul("dropdown-menu", "menu1") as inner_ul:
+                        inner_ul.role = "menu"
+                        inner_ul._set("aria-labelledby", "drop1")
+                        chapters = self.get_chapters_set()
+                        for (title, articles) in chapters:
+                            if articles:
+                                with inner_ul.li.a as a:
+                                    a.href = "./%s.html" % articles[0].chapter_ref
+                                    a.tabindex = "-1"
+                                    a < articles[0].chapter
+                # do topics
+                with ul.li("dropdown") as li:
+                    with li.a("dropdown-toggle", "drop2") as a:
+                        a.role = "button"
+                        a._set("data-toggle", "dropdown")
+                        a.href = "#"
+                        a < "Topics"
+                        a.b("caret")
+
+                    with li.ul("dropdown-menu", "menu1") as inner_ul:
+                        inner_ul.role = "menu"
+                        inner_ul._set("aria-labelledby", "drop2")
+                        topics = self.get_topics_set()
+                        for (title, articles) in topics:
+                            if articles:
+                                with inner_ul.li("active").a as a:
+                                    a.href = "./%s.html" % articles[0].topic_ref
+                                    a.tabindex = "-1"
+                                    a < articles[0].topic
 
 
-            # do archives
-            with ul.li("dropdown") as li:
-                with li.a("dropdown-toggle", "drop3") as a:
-                    a.role = "button"
-                    a._set("data-toggle", "dropdown")
-                    a.href = "#"
-                    a < "Archives"
-                    a.b("caret")
+                # do archives
+                with ul.li("dropdown") as li:
+                    with li.a("dropdown-toggle", "drop3") as a:
+                        a.role = "button"
+                        a._set("data-toggle", "dropdown")
+                        a.href = "#"
+                        a < "Archives"
+                        a.b("caret")
 
-                with li.ul("dropdown-menu", "menu1") as inner_ul:
-                    inner_ul.role = "menu"
-                    inner_ul._set("aria-labelledby", "drop3")
-                    archives = self.get_archives_set()
-                    for (date, articles) in archives:
-                        if articles:
-                            file_date = articles[0].date.strftime("%Y%m")
-                            with inner_ul.li.a as date_a:
-                                date_a.href = "./%s.html" % file_date
-                                date_a.strong < date
+                    with li.ul("dropdown-menu", "menu1") as inner_ul:
+                        inner_ul.role = "menu"
+                        inner_ul._set("aria-labelledby", "drop3")
+                        archives = self.get_archives_set()
+                        for (date, articles) in archives:
+                            if articles:
+                                file_date = articles[0].date.strftime("%Y%m")
+                                with inner_ul.li.a as date_a:
+                                    date_a.href = "./%s.html" % file_date
+                                    date_a.strong < date
 
-                            for article in articles:
-                                with inner_ul.li.a as article_a:
-                                    article_a.href = "./%s.html#%s" % (file_date, article.ref)
-                                    article_a.small < '&nbsp;' + article.title
+                                for article in articles:
+                                    with inner_ul.li.a as article_a:
+                                        article_a.href = "./%s.html#%s" % (file_date, article.ref)
+                                        article_a.small < '&nbsp;' + article.title
 
-                            inner_ul.li("divider")
+                                inner_ul.li("divider")
                             
+                # add about link
+                with ul.li.a(href = '#') as a:
+                    a < 'About'
+
+            div.h3("muted") < self.title
+
+        section.hr
+            
         return section
 
 
@@ -236,13 +247,13 @@ class NormalBook(object):
 
     def create_main(self):
 
-        doc = T()
+        doc = T(enable_interpolation = True)
         doc < self.settings.HEADER
 
-        if self.summary_html:
-            doc.div('hero-unit').p < self.summary_html
+        doc < self.create_nav()
+        #if self.summary_html:
+        #    doc.div('hero-unit').p < self.summary_html
 
-        doc.div("row").div("span12") < self.create_nav()
 
         with doc.div("row") as main:
             for article in self.articles[:3]:
@@ -331,10 +342,10 @@ class Article(object):
 
         """
 
-        doc = T()
+        doc = T(enable_interpolation = True)
 
         doc.h3 < self.title
-        doc.strong < self.date
+        doc.strong < self.date.strftime("%B %d, %Y")
         doc < ' / '
         doc.strong < self.chapter
 

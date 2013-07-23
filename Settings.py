@@ -37,7 +37,8 @@ class Settings(object):
     <meta name="author" content="$author">
 
     <!-- Le styles -->
-    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
+    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+
     <style>
       body {
         padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
@@ -46,6 +47,8 @@ class Settings(object):
       .sidebar-nav {
         padding: 9px 0;
       }
+
+      
     </style>
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -56,22 +59,9 @@ class Settings(object):
   </head>
 
   <body>
-   <!-- Navbar
-    ================================================== -->
-    <div class="navbar navbar-inverse navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container">
-          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="brand" href="./index.html">$title</a>
-        </div>
-      </div>
-    </div>
-    
     <div class="container">
+
+
 """
 
 

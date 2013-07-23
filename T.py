@@ -41,7 +41,7 @@ class T(object):
 
           Unfortunately element attributes could occasionally have a
           form which is not a valid python identifier. Such attributes
-          may be set using the element method .set() or provided in a
+          may be set using the element method ._set() or provided in a
           dict 'attr' in the element constructor:
 
           body._set('non-valid-name', 'attribute_value') or
