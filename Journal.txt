@@ -1,13 +1,13 @@
-Book: Pavlos's NormalBook
+Book: Pavlos's Journal
 Author: Pavlos Christoforou
 Date: 2013-01-20
 
-A NormalBook about raising 3 kids, programming and technology.
+A Journal about raising 3 kids, programming and technology.
 
 
 Chapter: Programming
 
-Article: Introducing NormalBook
+Article: Introducing Journal
 Date: 2013-01-20
 Topic: Publishing
 
@@ -28,10 +28,10 @@ to both casual and frequent readers.
 
 These observations along with the complexity of many blogging systems
 have motivated me to introduce a new format for such type of writting
-which is closer to the format of a regular book. I call it a
-*NormalBook*. 
+which is closer to the format of a regular book. I call it simply a
+*Journal*. 
 
-A NormalBook is composed of a number of chapters and each chapter is
+A Journal is composed of a number of chapters and each chapter is
 composed of a number of articles. Each article's set of attributes is
 limited to a title, a date, an author and a topic. I wish, initially
 at least, to keep the model very strict and limited and mostly
@@ -63,7 +63,7 @@ JavaScript initially targeting bootstrap.js.
 
 
 
-Article: Introducing NormalBook
+Article: Introducing Journal
 Date: 2013-01-20
 Topic: Publishing
 
@@ -84,9 +84,9 @@ to both casual and frequent readers.
 These observations along with the complexity of many blogging systems
 have motivated me to introduce a new format for such type of writting
 which is closer to the format of a regular book. I call it
-*NormalBook*. 
+*Journal*. 
 
-A NormalBook is composed of a number of chapters and each chapter is
+A Journal is composed of a number of chapters and each chapter is
 composed of a number of articles. Each article's set of attributes is
 limited to a title, a date, an author and a topic. I wish, initially
 at least, to keep the model very strict and limited and mostly
@@ -122,7 +122,7 @@ JavaScript initially targeting bootstrap.js.
 
 Chapter: Python programming
 
-Article: Introducing NormalBook
+Article: Introducing Journal
 Date: 2013-01-20
 Topic: Publishing
 
@@ -143,9 +143,9 @@ to both casual and frequent readers.
 These observations along with the complexity of many blogging systems
 have motivated me to introduce a new format for such type of writting
 which is closer to the format of a regular book. I call it
-*NormalBook*. 
+*Journal*. 
 
-A NormalBook is composed of a number of chapters and each chapter is
+A Journal is composed of a number of chapters and each chapter is
 composed of a number of articles. Each article's set of attributes is
 limited to a title, a date, an author and a topic. I wish, initially
 at least, to keep the model very strict and limited and mostly

@@ -1,6 +1,6 @@
 """ FluidBook generator.
 
-    Takes a NormalBook text file and generates a Boostrap.js based normalbook site.
+    Takes a Journal text file and generates a Boostrap.js based journal site.
 
 """
 
@@ -55,9 +55,9 @@ def make_ref(txt):
 
 
 
-class NormalBook(object):
+class Journal(object):
 
-    """ object representing a normal book.
+    """ object representing a journal.
 
     """
 
@@ -293,7 +293,7 @@ class NormalBook(object):
 
 class Article(object):
 
-    """ object representing a normalbook article.
+    """ object representing a journal article.
 
     """
 
@@ -375,7 +375,7 @@ class Article(object):
 
 def parse_source(txt):
 
-    """ parse NormalBook contents and return a NormalBook object.
+    """ parse Journal contents and return a Journal object.
 
     """
 
@@ -413,14 +413,14 @@ def parse_source(txt):
     ## process book header
     (book_settings, summary) = process_block(book_header)
 
-    normal_book = NormalBook(
+    normal_book = Journal(
         title = book_settings.get('book'),
         date = parse_date(book_settings.get('date')),
         author = book_settings.get('author'),
         summary = summary.strip()
         )
 
-    print 'Processing NormalBook: %s' % normal_book.title
+    print 'Processing Journal: %s' % journal.title
     print
     chapter_blocks = parts[1:]
     chapter_i = 0
@@ -448,11 +448,11 @@ def parse_source(txt):
                 content = content.strip()
                 )
 
-            normal_book.add(article)
+            journal.add(article)
 
-    normal_book.convert_markdown()
+    journal.convert_markdown()
 
-    return normal_book
+    return journal
 
 
 
@@ -463,16 +463,16 @@ def cli():
     """
 
     parser = argparse.ArgumentParser(
-        description = 'NormalBook CLI',
+        description = 'Journal CLI',
         )
     
-    parser.add_argument('source_file', help = "NormalBook source file")
+    parser.add_argument('source_file', help = "Journal source file")
     parser.add_argument('target_dir', help = "Target dir for generated html.")
     args = parser.parse_args()
 
     txt = open(args.source_file, 'r').read()
-    bk = parse_source(txt)
-    bk.create_site(args.target_dir)
+    journal = parse_source(txt)
+    journal.create_site(args.target_dir)
 
 
 
