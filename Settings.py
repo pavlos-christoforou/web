@@ -12,14 +12,6 @@ class Settings(object):
 
 
 
-    def about(self):
-
-        """ return an html string or a T object representing the
-            contents of the about box.
-
-        """
-    
-
 
     ## how many articles shall we include in each page?
     ARTICLES_PER_PAGE = 10

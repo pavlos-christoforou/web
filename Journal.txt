@@ -1,4 +1,4 @@
-Book: Pavlos's Journal
+Journal: Pavlos's Journal
 Author: Pavlos Christoforou
 Date: 2013-01-20
 
@@ -43,15 +43,15 @@ to use and very hard to modify.
 
 ### Implementation
 
-1. The contents of a book (or even multiple books) are organized in a
-single large text file. Good editors (Emacs/VIM/Sublime Text) are
+1. The contents of a journal (or even multiple journals) are organized
+in a single large text file. Good editors (Emacs/VIM/Sublime Text) are
 extremely powerfull applications offering incredible
 editing/navigation/search/replace facilities withing a single buffer
 or file. They are not as effective when working across a large
 collection of files especially if those files are organized in a
 hierarchical directory structure.
 
-2. Books, chapters and articles will be defined in terms of simple
+2. Journals, chapters and articles will be defined in terms of simple
 double colon field definitions and the actual content of each article
 will be written in markdown.
 

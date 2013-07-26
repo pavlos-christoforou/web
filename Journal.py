@@ -1,4 +1,4 @@
-""" FluidBook generator.
+""" Journal generator.
 
     Takes a Journal text file and generates a Boostrap.js based journal site.
 
@@ -11,6 +11,8 @@ import re
 import argparse
 import datetime
 import os
+from collections import defaultdict
+
 
 try:
     from markdown import markdown
@@ -65,13 +67,13 @@ class Journal(object):
                  title = None,
                  author = None,
                  date = None,
-                 summary = None,
+                 about = None,
                  ):
         self.title = title
         self.author = author
         self.date = date
-        self.summary = summary
-        self.summary_html = None
+        self.about = about
+        self.about_html = None
         
         self.articles = []
 
@@ -98,8 +100,8 @@ class Journal(object):
         
 
     def convert_markdown(self):
-        if self.summary:
-            self.summary_html = markdown(self.summary)
+        if self.about:
+            self.about_html = markdown(self.about)
 
         for article in self.articles:
             if article.content:
@@ -110,9 +112,9 @@ class Journal(object):
 
         out = []
 
-        d = {}
+        d = defaultdict(list)
         for article in self.articles:
-            l = d.setdefault(article.topic, [])
+            l = d[article.topic]
             l.append(article)
 
         for _tuple in sorted(d.items()):
@@ -125,9 +127,9 @@ class Journal(object):
 
         out = []
 
-        d = {}
+        d = defaultdict(list)
         for article in self.articles:
-            l = d.setdefault(article.date.strftime("%B %Y"), [])
+            l = d[article.date.strftime("%B %Y")]
             l.append(article)
 
         for _tuple in sorted(d.items()):
@@ -140,12 +142,12 @@ class Journal(object):
 
         out = []
 
-        d = {}
+        d = defaultdict(list)
         for article in self.articles:
-            l = d.setdefault((article.chapter_i, article.chapter), [])
+            l = d[(article.chapter_i, article.chapter)]
             l.append(article)
 
-        for ((chapter_1, chapter), articles) in sorted(d.items()):
+        for ((chapter_i, chapter), articles) in sorted(d.items()):
             out.append((chapter, articles))
 
         return out
@@ -251,8 +253,8 @@ class Journal(object):
         doc < self.settings.HEADER
 
         doc < self.create_nav()
-        #if self.summary_html:
-        #    doc.div('hero-unit').p < self.summary_html
+        #if self.about_html:
+        #    doc.div('hero-unit').p < self.summar_html
 
 
         with doc.div("row") as main:
@@ -381,7 +383,8 @@ def parse_source(txt):
 
     CHAPTER_RE = re.compile('\s*chapter:\s*(.*)\s*', re.IGNORECASE)
     ARTICLE_RE = re.compile('\s*article:\s*(.*)\s*', re.IGNORECASE)
-    SETTING_RE = re.compile('\s*(book|date|author|chapter|article|topic):\s*(.*)\s*', re.IGNORECASE)
+    SETTING_RE = re.compile('\s*(journal|date|author|chapter|article|topic):\s*(.*)\s*', re.IGNORECASE)
+
 
     def process_block(txt):
 
@@ -406,17 +409,18 @@ def parse_source(txt):
 
         return (settings, text)
 
+
     ## split txt into chapters
     parts = CHAPTER_RE.split(txt)
-    book_header = parts[0]
+    journal_header = parts[0]
 
-    ## process book header
-    (book_settings, summary) = process_block(book_header)
+    ## process journal header
+    (journal_settings, summary) = process_block(journal_header)
 
-    normal_book = Journal(
-        title = book_settings.get('book'),
-        date = parse_date(book_settings.get('date')),
-        author = book_settings.get('author'),
+    journal = Journal(
+        title = journal_settings.get('journal'),
+        date = parse_date(journal_settings.get('date')),
+        author = journal_settings.get('author'),
         summary = summary.strip()
         )
 
@@ -450,7 +454,6 @@ def parse_source(txt):
 
             journal.add(article)
 
-    journal.convert_markdown()
 
     return journal
 
