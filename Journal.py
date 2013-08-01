@@ -158,6 +158,82 @@ class Journal(object):
 
         """
 
+
+        section = T(enable_interpolation = True)
+
+        # do chapters
+        section.h5("Chapters")
+        with section.dl as dl:
+            chapters = self.get_chapters_set()
+            for (title, articles) in chapters:
+                if articles:
+                    dl.dt.a(href = "./%s.html" % articles[0].chapter_ref) < articles[0].chapter
+                    dl.dd < title
+                    
+        # add about link
+        section.a(href = '#') < 'About'
+
+        section.hr
+            
+        return section
+
+
+    def create_nav3(self):
+        """ create chapter and topic links.
+
+        """
+
+
+        section = T(enable_interpolation = True)
+
+        # do chapters
+        with section.div("btn-group") as div:
+            div.button("btn") < "Chapters"
+            div.button("btn dropdown-toggle", attr = {'data-toggle':'dropdown'}).span("caret")
+            with div.ul("dropdown-menu pull-right") as ul:
+                chapters = self.get_chapters_set()
+                for (title, articles) in chapters:
+                    if articles:
+                        ul.li.a(href = "./%s.html" % articles[0].chapter_ref) < articles[0].chapter
+        
+        # do topics
+        with section.div("btn-group") as div:
+            div.button("btn") < "Topics"
+            div.button("btn dropdown-toggle", attr = {'data-toggle':'dropdown'}).span("caret")
+            with div.ul("dropdown-menu pull-right") as ul:
+                topics = self.get_topics_set()
+                for (title, articles) in topics:
+                    if articles:
+                        ul.li.a(href = "./%s.html" % articles[0].chapter_ref) < articles[0].topic
+                        
+        # do archives
+        with section.div("btn-group") as div:
+            div.button("btn") < "Archives"
+            div.button("btn dropdown-toggle", attr = {'data-toggle':'dropdown'}).span("caret")
+            with div.ul("dropdown-menu pull-right") as ul:
+                archives = self.get_archives_set()
+                for (date, articles) in archives:
+                    if articles:
+                        file_date = articles[0].date.strftime("%Y%m")
+                        ul.li.strong < file_date
+                        ul.li("divider")
+                        for article in articles:
+                            ul.li.a(href = "./%s.html#%s" % (file_date, article.ref)).small < '&nbsp;' + article.title
+                            
+        # add about link
+        section.ul.li.a(href = '#') < 'About'
+
+        section.hr
+            
+        return section
+
+
+
+    def create_nav2(self):
+        """ create chapter and topic links.
+
+        """
+
         section = T(enable_interpolation = True)
 
         with section.div("masthead") as div:
@@ -252,13 +328,10 @@ class Journal(object):
         doc = T(enable_interpolation = True)
         doc < self.settings.HEADER
 
-        doc < self.create_nav()
-        #if self.about_html:
-        #    doc.div('hero-unit').p < self.summar_html
-
-
         with doc.div("row") as main:
-            for article in self.articles[:3]:
+            with main.div("span4") as left_nav:
+                left_nav < self.create_nav()
+            for article in self.articles[:2]:
                 main.div("span4") < article.create_summary()
             main.hr
 
@@ -415,13 +488,13 @@ def parse_source(txt):
     journal_header = parts[0]
 
     ## process journal header
-    (journal_settings, summary) = process_block(journal_header)
+    (journal_settings, about) = process_block(journal_header)
 
     journal = Journal(
         title = journal_settings.get('journal'),
         date = parse_date(journal_settings.get('date')),
         author = journal_settings.get('author'),
-        summary = summary.strip()
+        about = about.strip()
         )
 
     print 'Processing Journal: %s' % journal.title
@@ -434,7 +507,7 @@ def parse_source(txt):
         ## split chapter blocks into consituent articles
         parts = ARTICLE_RE.split(chapter_block)
         chapter_header = parts[0]
-        ## we have no futrther chapter settings or summary so we can stop here.
+        ## we have no futrther chapter settings or about section so we can stop here.
         article_blocks = parts[1:]
         chapter_i += 1
         for (article_title, article_block) in zip(article_blocks[::2], article_blocks[1::2]):

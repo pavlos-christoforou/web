@@ -30,6 +30,7 @@ class Settings(object):
 
     <!-- Le styles -->
     <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+    <link href="./css/bootstrap.min.css" rel="stylesheet">
 
     <style>
       body {
@@ -54,14 +55,16 @@ class Settings(object):
     <div class="container">
 
 
+
 """
 
 
     FOOTER = """\
-    <div class="row"><br/></div>
-    <footer>
-    &copy; $author
-    </footer>
+
+      <div class="row"><br/><hr/><br/></div>
+      <footer>
+      &copy; $author
+      </footer>
     </div> <!-- /container -->
 
     <!-- Le javascript
@@ -69,6 +72,7 @@ class Settings(object):
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
     <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
   </body>
 </html>
 """
