@@ -30,7 +30,6 @@ class Settings(object):
 
     <!-- Le styles -->
     <link href="http://netdna.bootstrapcdn.com/bootswatch/3.0.0/flatly/bootstrap.min.css" rel="stylesheet">
-    <link href="css/bootstrap_flatly.min.css" rel="stylesheet">
 
     <style>
     body {
