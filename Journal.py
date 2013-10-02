@@ -159,186 +159,72 @@ class Journal(object):
         """
 
 
-        section = T(enable_interpolation = True)
-
+        nav = T(enable_interpolation = True)
         # do chapters
-        section.h5("Chapters")
-        with section.dl as dl:
-            chapters = self.get_chapters_set()
-            for (title, articles) in chapters:
-                if articles:
-                    dl.dt.a(href = "./%s.html" % articles[0].chapter_ref) < articles[0].chapter
-                    dl.dd < title
-                    
-        # add about link
-        section.a(href = '#') < 'About'
-
-        section.hr
-            
-        return section
-
-
-    def create_nav3(self):
-        """ create chapter and topic links.
-
-        """
-
-
-        section = T(enable_interpolation = True)
-
-        # do chapters
-        with section.div("btn-group") as div:
-            div.button("btn") < "Chapters"
-            div.button("btn dropdown-toggle", attr = {'data-toggle':'dropdown'}).span("caret")
-            with div.ul("dropdown-menu pull-right") as ul:
-                chapters = self.get_chapters_set()
+        chapters = self.get_chapters_set()
+        with nav.div("well") as well:
+            well.h4 < "Chapters"
+            with well.ul("list-unstyled") as ul:
                 for (title, articles) in chapters:
                     if articles:
-                        ul.li.a(href = "./%s.html" % articles[0].chapter_ref) < articles[0].chapter
-        
+                        with ul.li as li:
+                            #li.span < "&nbsp;%s.&nbsp;" % articles[0].chapter_i
+                            li.a(href = "./%s.html" % articles[0].chapter_ref) < title
+
         # do topics
-        with section.div("btn-group") as div:
-            div.button("btn") < "Topics"
-            div.button("btn dropdown-toggle", attr = {'data-toggle':'dropdown'}).span("caret")
-            with div.ul("dropdown-menu pull-right") as ul:
-                topics = self.get_topics_set()
-                for (title, articles) in topics:
-                    if articles:
-                        ul.li.a(href = "./%s.html" % articles[0].chapter_ref) < articles[0].topic
-                        
-        # do archives
-        with section.div("btn-group") as div:
-            div.button("btn") < "Archives"
-            div.button("btn dropdown-toggle", attr = {'data-toggle':'dropdown'}).span("caret")
-            with div.ul("dropdown-menu pull-right") as ul:
-                archives = self.get_archives_set()
-                for (date, articles) in archives:
-                    if articles:
-                        file_date = articles[0].date.strftime("%Y%m")
-                        ul.li.strong < file_date
-                        ul.li("divider")
-                        for article in articles:
-                            ul.li.a(href = "./%s.html#%s" % (file_date, article.ref)).small < '&nbsp;' + article.title
-                            
-        # add about link
-        section.ul.li.a(href = '#') < 'About'
+        topics = self.get_topics_set()
+        len_topics = len(topics)
+        len_left = int(len_topics / 2.0 + 0.6)
 
-        section.hr
-            
-        return section
+        with nav.div("well") as well:
+            well.h4 < "Topics"
+            with well.div("row") as row:
+                with row.div("col-lg-6").ul("list-unstyled") as ul:
+                    for (title, articles) in topics[:len_left]:
+                        if articles:
+                            with ul.li as li:
+                                li.a(href = "./%s.html" % articles[0].topic_ref) < title
+                                
+                with row.div("col-lg-6").ul("list-unstyled") as ul:
+                    for (title, articles) in topics[len_left:]:
+                        if articles:
+                            with ul.li as li:
+                                li.a(href = "./%s.html" % articles[0].topic_ref) < title
+
+        # do recent
+        with nav.div("well") as well:
+            well.h4 < "Recent"
+            with well.ul("list-unstyled") as ul:
+                for article in self.articles[:20]:
+                    with ul.li as li:
+                        li.a(href = "./%s.html" % article.ref) < article.title
+                        li < "&nbsp;"
+                        li.span(style = "font-size: 0.7em;") < article.date.strftime("%b %d, %Y")
+
+                    
+        return nav
 
 
 
-    def create_nav2(self):
-        """ create chapter and topic links.
-
-        """
-
-        section = T(enable_interpolation = True)
-
-        with section.div("masthead") as div:
         
-            with div.ul("nav nav-pills pull-right") as ul:
-                with ul.li("active").a as a:
-                    a.href = "./latest.html"
-                    a < "Latest"
-
-                # do chapters
-                with ul.li("dropdown") as li:
-                    with li.a("dropdown-toggle", "drop1") as a:
-                        a.role = "button"
-                        a._set("data-toggle", "dropdown")
-                        a.href = "#"
-                        a < "Chapters"
-                        a.b("caret")
-
-                    with li.ul("dropdown-menu", "menu1") as inner_ul:
-                        inner_ul.role = "menu"
-                        inner_ul._set("aria-labelledby", "drop1")
-                        chapters = self.get_chapters_set()
-                        for (title, articles) in chapters:
-                            if articles:
-                                with inner_ul.li.a as a:
-                                    a.href = "./%s.html" % articles[0].chapter_ref
-                                    a.tabindex = "-1"
-                                    a < articles[0].chapter
-                # do topics
-                with ul.li("dropdown") as li:
-                    with li.a("dropdown-toggle", "drop2") as a:
-                        a.role = "button"
-                        a._set("data-toggle", "dropdown")
-                        a.href = "#"
-                        a < "Topics"
-                        a.b("caret")
-
-                    with li.ul("dropdown-menu", "menu1") as inner_ul:
-                        inner_ul.role = "menu"
-                        inner_ul._set("aria-labelledby", "drop2")
-                        topics = self.get_topics_set()
-                        for (title, articles) in topics:
-                            if articles:
-                                with inner_ul.li("active").a as a:
-                                    a.href = "./%s.html" % articles[0].topic_ref
-                                    a.tabindex = "-1"
-                                    a < articles[0].topic
-
-
-                # do archives
-                with ul.li("dropdown") as li:
-                    with li.a("dropdown-toggle", "drop3") as a:
-                        a.role = "button"
-                        a._set("data-toggle", "dropdown")
-                        a.href = "#"
-                        a < "Archives"
-                        a.b("caret")
-
-                    with li.ul("dropdown-menu", "menu1") as inner_ul:
-                        inner_ul.role = "menu"
-                        inner_ul._set("aria-labelledby", "drop3")
-                        archives = self.get_archives_set()
-                        for (date, articles) in archives:
-                            if articles:
-                                file_date = articles[0].date.strftime("%Y%m")
-                                with inner_ul.li.a as date_a:
-                                    date_a.href = "./%s.html" % file_date
-                                    date_a.strong < date
-
-                                for article in articles:
-                                    with inner_ul.li.a as article_a:
-                                        article_a.href = "./%s.html#%s" % (file_date, article.ref)
-                                        article_a.small < '&nbsp;' + article.title
-
-                                inner_ul.li("divider")
-                            
-                # add about link
-                with ul.li.a(href = '#') as a:
-                    a < 'About'
-
-            div.h3("muted") < self.title
-
-        section.hr
-            
-        return section
-
-
-    
-
-    def create_main(self):
+    def create_page(self, page_content):
 
         doc = T(enable_interpolation = True)
         doc < self.settings.HEADER
 
         with doc.div("row") as main:
-            with main.div("span4") as left_nav:
-                left_nav < self.create_nav()
-            for article in self.articles[:2]:
-                main.div("span4") < article.create_summary()
-            main.hr
+            with main.div("col-lg-8") as text:
+                text < page_content
+
+            with main.div("col-lg-4") as nav:
+                nav < self.create_nav()
+                    
 
         doc < self.settings.FOOTER
 
         return doc
 
+        
 
     def get_namespace(self):
         """ create a namespace for the _render method of the final
@@ -359,11 +245,69 @@ class Journal(object):
         self.sort()
         self.convert_markdown()
         nmsp = self.get_namespace()
-        
-        index = self.create_main()._render(** nmsp)
+
+        ## create about page
+        about = self.create_page(self.about_html)._render(** nmsp)
+        open(os.path.join(target_dir, 'about.html'), 'w').write(about)
+
+        ## index page
+        text = T(enable_interpolation = True)
+        for article in self.articles:
+            text < article.create_content()
+            text.hr
+            text.br
+        index = self.create_page(text)._render(** nmsp)
         open(os.path.join(target_dir, 'index.html'), 'w').write(index)
 
+        ## chapter pages
+        chapters = self.get_chapters_set()
+        for (title, articles) in chapters:
+            chapter = T(enable_interpolation = True)
+            chapter.h3 < "Chapter:&nbsp;%s"  % title 
+            for article in articles:
+                chapter < article.create_content()
+                chapter.hr
+                chapter.br
+                chapter_html = self.create_page(chapter)._render(** nmsp)
+                open(
+                    os.path.join(
+                        target_dir, 
+                        '%s.html' % articles[0].chapter_ref
+                        ), 
+                    'w'
+                    ).write(chapter_html)
+                
+        ## topic pages
+        topics = self.get_topics_set()
+        for (title, articles) in topics:
+            topic = T(enable_interpolation = True)
+            topic.h3 < "Topic:&nbsp;%s"  % title 
+            for article in articles:
+                topic < article.create_content()
+                topic.hr
+                topic.br
+                topic_html = self.create_page(topic)._render(** nmsp)
+                open(
+                    os.path.join(
+                        target_dir, 
+                        '%s.html' % articles[0].topic_ref
+                        ), 
+                    'w'
+                    ).write(topic_html)
+                
 
+        ## individual articles
+        for article in self.articles:
+            article_html = self.create_page(article.create_content())._render(** nmsp)
+            open(
+                os.path.join(
+                    target_dir, 
+                    '%s.html' % article.ref
+                    ), 
+                'w'
+                ).write(article_html)
+                
+                
 
 
 class Article(object):
@@ -444,6 +388,33 @@ class Article(object):
         return doc
 
 
+
+    def create_content(self):
+
+        """ create content for article.
+
+        """
+
+        doc = T(enable_interpolation = True)
+        doc.h3.a(href="./%s.html" % self.ref) < self.title
+        doc.hr
+        doc.a(href="./%s.html" % self.chapter_ref) < self.chapter
+
+        if self.topic:
+            doc < '&nbsp;&nbsp;&middot;&nbsp;&nbsp;'
+            doc.a(href="./%s.html" % self.topic_ref) < self.topic
+        doc < '&nbsp;&nbsp;&middot;&nbsp;&nbsp;'
+        doc < self.date.strftime("%B %d, %Y")
+        doc < '&nbsp;&nbsp;&nbsp;&nbsp;'
+        doc.a(href="./%s.html" % self.ref) < "Permalink"
+        
+        
+        doc.hr
+        doc < self.content_html
+
+        return doc
+
+        
 
 
 

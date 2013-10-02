@@ -29,19 +29,19 @@ class Settings(object):
     <meta name="author" content="$author">
 
     <!-- Le styles -->
-    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
-    <link href="./css/bootstrap.min.css" rel="stylesheet">
+    <link href="http://netdna.bootstrapcdn.com/bootswatch/3.0.0/flatly/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap_flatly.min.css" rel="stylesheet">
 
     <style>
-      body {
-        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
-        padding-bottom: 40px;
+    body {
+      margin-top: 100px; 
       }
-      .sidebar-nav {
-        padding: 9px 0;
+    footer {
+      margin: 50px 0;
       }
-
-      
+    .glyphicon {
+      font-size: 0.5 em;
+      }
     </style>
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -52,18 +52,43 @@ class Settings(object):
   </head>
 
   <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="./index.html">QuietCasting</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="./about.html">About</a></li>
+          </ul>
+        </div><!-- /.navbar-collapse -->
+      </div><!-- /.container -->
+    </nav>
+
+  
     <div class="container">
-
-
 
 """
 
 
     FOOTER = """\
-
-      <div class="row"><br/><hr/><br/></div>
+      <hr>
       <footer>
-      &copy; $author
+        <div class="row">
+          <div class="col-lg-12">
+
+      <p>Copyright &copy; QuietCasting.com &middot; $author</p>
+          </div>
+        </div>      
       </footer>
     </div> <!-- /container -->
 
@@ -71,8 +96,7 @@ class Settings(object):
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
-    <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
-    <script src="./js/bootstrap.min.js"></script>
+    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
   </body>
 </html>
 """
