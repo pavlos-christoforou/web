@@ -5,13 +5,13 @@
 """
 
 
-from T import T
-from Settings import Settings
 import re
+import os
 import argparse
 import datetime
-import os
 from collections import defaultdict
+from T import T
+from Settings import Settings
 
 
 try:
@@ -24,8 +24,8 @@ except ImportError:
     
 
 ### Globals
+_debug = 0
 
-SUMMARY_LEN = 10000
 
 ### helpers
 
@@ -88,14 +88,20 @@ class Journal(object):
         self.articles.append(article)
         
 
-    def sort(self):
+    def get_recent_set(self, count = 5):
 
-        """ sort on article date, newer first.
+        """ get 'count' most recent articles.
 
         """
 
-        self.articles.sort(lambda a,b: cmp(a.date, b.date))
-        self.articles.reverse()
+        
+        out = sorted(
+            self.articles, 
+            cmp = lambda a,b: cmp(a.date, b.date), 
+            reverse = True
+            )[:count]
+
+        return out
 
         
 
@@ -123,36 +129,6 @@ class Journal(object):
         return out
 
 
-    def get_archives_set(self):
-
-        out = []
-
-        d = defaultdict(list)
-        for article in self.articles:
-            l = d[article.date.strftime("%B %Y")]
-            l.append(article)
-
-        for _tuple in sorted(d.items()):
-            out.append(_tuple)
-
-        return out
-
-
-    def get_chapters_set(self):
-
-        out = []
-
-        d = defaultdict(list)
-        for article in self.articles:
-            l = d[(article.chapter_i, article.chapter)]
-            l.append(article)
-
-        for ((chapter_i, chapter), articles) in sorted(d.items()):
-            out.append((chapter, articles))
-
-        return out
-
-
     def create_nav(self):
         """ create chapter and topic links.
 
@@ -160,17 +136,48 @@ class Journal(object):
 
 
         nav = T(enable_interpolation = True)
-        # do chapters
-        chapters = self.get_chapters_set()
-        with nav.div("well") as well:
-            well.h4 < "Chapters"
-            with well.ul("list-unstyled") as ul:
-                for (title, articles) in chapters:
-                    if articles:
-                        with ul.li as li:
-                            #li.span < "&nbsp;%s.&nbsp;" % articles[0].chapter_i
-                            li.a(href = "./%s.html" % articles[0].chapter_ref) < title
 
+        # do recent
+        with nav.div("well") as well:
+            well.h4 < "Recent"
+            with well.ul("list-unstyled") as ul:
+                for article in self.get_recent_set():
+                    with ul.li as li:
+                        li.a(href = "./%s.html" % article.ref) < article.title
+                        li < "&nbsp;&middot;&nbsp;"
+                        li.span(style = "font-size: 0.7em;").a(href = "./%s.html" % article.topic_ref) < article.topic
+                        li < "&nbsp;"
+                        li.span(style = "font-size: 0.7em;") < article.date.strftime("%b %d, %Y")
+
+
+        ## do source code references to github
+        with nav.div("well") as well:
+            well.h4 < "Code"
+            well.a(href = "https://github.com/pavlos-christoforou/web") < "Journal.py"
+            well < " - A very easy to use, single file static data generator."
+            well.br
+            well.a(href = "https://github.com/pavlos-christoforou/web") < "T.py"
+            well < " - A very easy to use, easy to read single file templating engine."  
+            well.br
+            well.a(href = "https://github.com/pavlos-christoforou/bitcoin") < "Wallet.py"
+            well < " - A single file deterministic bitcoin address generator with no external dependencies."  
+                
+        
+        ## do all articles
+        with nav.div("well") as well:
+            well.h4 < "Contents"
+            with well.ul("list-unstyled") as ul:
+                for article in self.articles:
+                    with ul.li as li:
+                        li.a(href = "./%s.html" % article.ref) < article.title
+                        li < "&nbsp;&middot;&nbsp;"
+                        li.span(style = "font-size: 0.7em;").a(href = "./%s.html" % article.topic_ref) < article.topic
+                        li < "&nbsp;"
+                        li.span(style = "font-size: 0.7em;") < article.date.strftime("%b %d, %Y")
+
+
+            
+        
         # do topics
         topics = self.get_topics_set()
         len_topics = len(topics)
@@ -190,16 +197,6 @@ class Journal(object):
                         if articles:
                             with ul.li as li:
                                 li.a(href = "./%s.html" % articles[0].topic_ref) < title
-
-        # do recent
-        with nav.div("well") as well:
-            well.h4 < "Recent"
-            with well.ul("list-unstyled") as ul:
-                for article in self.articles[:20]:
-                    with ul.li as li:
-                        li.a(href = "./%s.html" % article.ref) < article.title
-                        li < "&nbsp;"
-                        li.span(style = "font-size: 0.7em;") < article.date.strftime("%b %d, %Y")
 
                     
         return nav
@@ -242,7 +239,6 @@ class Journal(object):
 
     def create_site(self, target_dir):
 
-        self.sort()
         self.convert_markdown()
         nmsp = self.get_namespace()
 
@@ -259,29 +255,11 @@ class Journal(object):
         index = self.create_page(text)._render(** nmsp)
         open(os.path.join(target_dir, 'index.html'), 'w').write(index)
 
-        ## chapter pages
-        chapters = self.get_chapters_set()
-        for (title, articles) in chapters:
-            chapter = T(enable_interpolation = True)
-            chapter.h3 < "Chapter:&nbsp;%s"  % title 
-            for article in articles:
-                chapter < article.create_content()
-                chapter.hr
-                chapter.br
-                chapter_html = self.create_page(chapter)._render(** nmsp)
-                open(
-                    os.path.join(
-                        target_dir, 
-                        '%s.html' % articles[0].chapter_ref
-                        ), 
-                    'w'
-                    ).write(chapter_html)
                 
         ## topic pages
         topics = self.get_topics_set()
         for (title, articles) in topics:
             topic = T(enable_interpolation = True)
-            topic.h3 < "Topic:&nbsp;%s"  % title 
             for article in articles:
                 topic < article.create_content()
                 topic.hr
@@ -322,8 +300,6 @@ class Article(object):
                  author = None,
                  date = None,
                  topic = None,
-                 chapter = None,
-                 chapter_i = None,
                  ref = None,
                  content = None,
                  ):
@@ -332,63 +308,14 @@ class Article(object):
         self.author = author
         self.date = date
         self.topic= topic
-        self.chapter = chapter
-        self.chapter_i = chapter_i
         self.content = content
         self.content_html = None
-        
 
-        self.chapter_ref = make_ref(chapter)
         self.topic_ref = make_ref(topic)
         self.ref = make_ref(title)
 
 
-
-    def cut_summary(self):
-        """ cut some initial part of a text block and return it as
-            summary.
-
-            XXX a cleverer approach is needed.
-
-        """
-
-        return self.content[:SUMMARY_LEN]
-
         
-    def create_summary(self):
-
-        """ create a summary for article.
-
-        """
-
-        doc = T(enable_interpolation = True)
-
-        doc.h3 < self.title
-        doc.strong < self.date.strftime("%B %d, %Y")
-        doc < ' / '
-        doc.strong < self.chapter
-
-        if self.topic:
-            doc < ' / '
-            doc.strong < self.topic
-
-        txt = self.content_html
-        if len(txt) <= SUMMARY_LEN:
-            doc < txt
-
-        else:
-            partial_txt = markdown(self.cut_summary() + ' ')
-            doc < partial_txt
-            with doc.a("btn") as a:
-                a.href = "./%s.html#%s" % (self.chapter_ref, self.ref)
-                a < "Read more &raquo;"
-
-        ## I like this T template more and more ...!
-
-        return doc
-
-
-
     def create_content(self):
 
         """ create content for article.
@@ -398,17 +325,11 @@ class Article(object):
         doc = T(enable_interpolation = True)
         doc.h3.a(href="./%s.html" % self.ref) < self.title
         doc.hr
-        doc.a(href="./%s.html" % self.chapter_ref) < self.chapter
-
-        if self.topic:
-            doc < '&nbsp;&nbsp;&middot;&nbsp;&nbsp;'
-            doc.a(href="./%s.html" % self.topic_ref) < self.topic
+        doc.a(href="./%s.html" % self.topic_ref) < self.topic
         doc < '&nbsp;&nbsp;&middot;&nbsp;&nbsp;'
         doc < self.date.strftime("%B %d, %Y")
         doc < '&nbsp;&nbsp;&nbsp;&nbsp;'
         doc.a(href="./%s.html" % self.ref) < "Permalink"
-        
-        
         doc.hr
         doc < self.content_html
 
@@ -425,9 +346,8 @@ def parse_source(txt):
 
     """
 
-    CHAPTER_RE = re.compile('\s*chapter:\s*(.*)\s*', re.IGNORECASE)
     ARTICLE_RE = re.compile('\s*article:\s*(.*)\s*', re.IGNORECASE)
-    SETTING_RE = re.compile('\s*(journal|date|author|chapter|article|topic):\s*(.*)\s*', re.IGNORECASE)
+    SETTING_RE = re.compile('\s*(journal|date|author|article|topic):\s*(.*)\s*', re.IGNORECASE)
 
 
     def process_block(txt):
@@ -454,9 +374,9 @@ def parse_source(txt):
         return (settings, text)
 
 
-    ## split txt into chapters
-    parts = CHAPTER_RE.split(txt)
-    journal_header = parts[0]
+    ## split txt into articles
+    parts = ARTICLE_RE.split(txt)
+    journal_header = parts.pop(0)
 
     ## process journal header
     (journal_settings, about) = process_block(journal_header)
@@ -470,33 +390,26 @@ def parse_source(txt):
 
     print 'Processing Journal: %s' % journal.title
     print
-    chapter_blocks = parts[1:]
-    chapter_i = 0
-    for (chapter_title, chapter_block) in zip(chapter_blocks[::2], chapter_blocks[1::2]):
-        print '  Processing Chapter: %s' % chapter_title
-        print 
-        ## split chapter blocks into consituent articles
-        parts = ARTICLE_RE.split(chapter_block)
-        chapter_header = parts[0]
-        ## we have no futrther chapter settings or about section so we can stop here.
-        article_blocks = parts[1:]
-        chapter_i += 1
-        for (article_title, article_block) in zip(article_blocks[::2], article_blocks[1::2]):
-            print '    Processing Article: %s' % article_title
-            print
-            (article_settings, content) = process_block(article_block)
 
-            article = Article(
-                title = article_title,
-                author = article_settings.get('author'),
-                date = parse_date(article_settings.get('date')),
-                topic = article_settings.get('topic'),
-                chapter = chapter_title,
-                chapter_i = chapter_i,
-                content = content.strip()
-                )
+    while parts:
+        article_title = parts.pop(0)
+        article_block = parts.pop(0)
 
-            journal.add(article)
+        print '    Processing Article: %s' % article_title
+        print
+        
+        (article_settings, content) = process_block(article_block)
+
+        article = Article(
+            title = article_title,
+            author = article_settings.get('author'),
+            date = parse_date(article_settings.get('date')),
+            topic = article_settings.get('topic'),
+            content = content.strip()
+            )
+        
+        
+        journal.add(article)
 
 
     return journal
@@ -520,9 +433,6 @@ def cli():
     txt = open(args.source_file, 'r').read()
     journal = parse_source(txt)
     journal.create_site(args.target_dir)
-
-
-
 
 
 
