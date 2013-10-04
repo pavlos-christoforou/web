@@ -1,17 +1,18 @@
-Library of Useful Modules
+Web Publishing Tools
 
 Author: Pavlos Christoforou
 
 
-** Journal.py **
+## Journal.py
 
 Journal is a blog/static site generator producing a structure closer
-to a book rather than a chronoligal blog.
+to a book rather than a blog.
 
 
-** T.py **
+## T.py
 
-T is new Python template language inspired by James Casbon's:
+T is a *very* simple Python template language inspired by James Casbon's:
 
     https://gist.github.com/1461441
+
 
