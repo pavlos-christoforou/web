@@ -46,12 +46,11 @@ var dispatch_function = function (selector, jQuery_method, jQuery_args) {
 jQuery(function($) {
     $('form[form_async]').on('submit', function(event) {
         var $form = $(this);
-        
         $.ajax({
             type: $form.attr('method'),
             url: $form.attr('action'),
             data: $form.serialize(),
-            
+
             success: function(data, status) {
                 obj = jQuery.parseJSON(data);
                 $.each(obj, function(index, row ) {
