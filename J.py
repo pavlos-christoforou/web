@@ -52,8 +52,7 @@ jQuery(function($) {
             data: $form.serialize(),
 
             success: function(data, status) {
-                obj = jQuery.parseJSON(data);
-                $.each(obj, function(index, row ) {
+                $.each(data, function(index, row ) {
                     dispatch_function(row.s, row.a, row.p);
                 });
             }
