@@ -38,13 +38,13 @@ class Selector(object):
 
 JS = """
 
-var dispatch_function = function (selector, jQuery_method, jQuery_args) {
+var j_dispatch_function = function (selector, jQuery_method, jQuery_args) {
     var selection = jQuery(selector);
     selection[jQuery_method].apply(selection, jQuery_args);
 };
 
 jQuery(function($) {
-    $('form[form_async]').on('submit', function(event) {
+    $('body').on('submit', 'form[form_async]', function(event) {
         var $form = $(this);
         $.ajax({
             type: $form.attr('method'),
@@ -52,35 +52,33 @@ jQuery(function($) {
             data: $form.serialize(),
 
             success: function(data, status) {
+             if (data.redirect) {
+                // data.redirect contains the string URL to redirect to
+                window.location.replace(data.redirect);
+                }
+             else {
                 $.each(data, function(index, row ) {
-                    dispatch_function(row.s, row.a, row.p);
+                    j_dispatch_function(row.s, row.a, row.p);
                 });
-            }
+                  }  
+             }
         });
         
         event.preventDefault();
     });
 });
+
 
 
 jQuery(function($) {
-
-    $('[call_method]').on('click', function(event) {
-        var $element = $(this);
-        
-        $.ajax({
-            type: $element.attr('call_method'),
-            url: $element.attr('href'),
-            success: function(data, status) {
-                $.each(data, function(index, row ) {
-                    dispatch_function(row.s, row.a, row.p);
-                });
-            }
-        });
-        
-        event.preventDefault();
+    $('body').on('click', '[add_data]', function(event) {
+        var $button = $(this);
+        var $form = $('#'.concat($button.attr('form')));
+        $form.remove('[name="__extra_data"]');
+        $form.append('<input type="hidden", name="__button_data", value = "'.concat($button.attr('add_data')).concat('"/>'));
     });
 });
+
 
 
 """
